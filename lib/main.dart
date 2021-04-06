@@ -19,6 +19,9 @@ class _HomeState extends State<Home> {
 
   List _toDoList = [];
 
+  Map<String, dynamic> _lastRemove;
+  int _lastRemovePos;
+
   @override
   void initState(){
     super.initState();
@@ -111,7 +114,29 @@ class _HomeState extends State<Home> {
               _saveData();
             });
           },
-        )
+        ),
+      onDismissed: (direction){
+        setState(() {
+          _lastRemove = Map.from(_toDoList[index]);
+          _lastRemovePos = index;
+          _toDoList.removeAt(index);
+
+          _saveData();
+          
+          final snack = SnackBar(
+            content:  Text("Tarefa ${_lastRemove["title"]} removida!"),
+            action:SnackBarAction(label: "desfazer",
+                onPressed: (){
+                    setState(() {
+                      _toDoList.insert(_lastRemovePos, _lastRemove);
+                      _saveData();
+                    });
+                }),
+            duration: Duration(seconds: 2),
+          );
+          Scaffold.of(context).showSnackBar(snack);
+        });
+      },
     );
   }
   //Obtendo o diretorio e criando o arquivo
